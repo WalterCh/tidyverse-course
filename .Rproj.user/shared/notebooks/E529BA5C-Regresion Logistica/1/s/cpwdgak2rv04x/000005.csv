@@ -1,4 +1,0 @@
-"0","admission <- admission %>% "
-"0","  mutate(admit_prob = predict(adm_mod, type = ""response""),"
-"0","         admit_pred = round(admit_prob))"
-"0","admission"

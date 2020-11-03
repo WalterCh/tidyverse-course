@@ -1,6 +1,0 @@
-"0","admission %>% 
-  group_by(rank) %>% 
-  summarise(n = n(), prop = n/nrow(admission))
-"
-"2","`summarise()` ungrouping output (override with `.groups` argument)
-"

@@ -1,3 +1,0 @@
-"0","adm_split <- initial_split(admission_tbl)"
-"0","adm_train <- training(adm_split)"
-"0","adm_test  <- testing(adm_split)"

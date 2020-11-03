@@ -1,4 +1,0 @@
-"0","cereal_lm_fit %>% "
-"0","  predict(new_data = cereal_tbl) %>% "
-"0","  mutate(Obs = cereal_tbl$rating) %>% "
-"0","  rmse(Obs, .pred)"
