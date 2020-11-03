@@ -32,8 +32,6 @@ library(caret)
 
 # Datos
 
-asd
-
 ```{r}
 admission <- read_csv("https://stats.idre.ucla.edu/stat/data/binary.csv")
 admission_tbl <- admission %>%
