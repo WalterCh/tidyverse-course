@@ -1,0 +1,163 @@
+---
+title: "Regresion Logistica"
+author: "Walter Chanava"
+date: "14/10/2020"
+output: 
+  html_document:
+    code_folding: hide
+    df_print: paged
+    fig_caption: true
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T,
+                      message = F,
+                      error = F,
+                      fig.align = 'center',
+                      warning = F)
+```
+
+# Paquetes
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(ggpubr)
+library(rstatix)
+library(aod)
+library(caret)
+```
+
+-   readr: para leer archivos csv.
+
+-   dplyr: para manipular tablas.
+
+-   ggplot2: para graficos.
+
+-   ggpubr: para un boxplot.
+
+-   rstatix: para obtener medidas de resumen de variables numericas.
+
+-   aod: para aplicar el test de Wald.
+
+-   caret: para hacer una matriz de confusion.
+
+# Data
+
+```{r}
+admission <- read_csv("https://stats.idre.ucla.edu/stat/data/binary.csv")
+admission <- admission %>% 
+  mutate(rank = as.factor(rank))
+admission
+```
+
+# EDA
+
+## Admit
+
+```{r}
+admission %>% 
+  group_by(admit) %>% 
+  summarise(n = n(), prop = n/nrow(admission))
+```
+
+```{r}
+admission %>% 
+  ggplot(aes(x = admit)) +
+  geom_bar()
+```
+
+## GRE
+
+```{r}
+admission %>% 
+  get_summary_stats(gre)
+```
+
+```{r}
+ggboxplot(admission, y = "gre")
+```
+
+## GPA
+
+```{r}
+admission %>% 
+  get_summary_stats(gpa)
+```
+
+```{r}
+ggboxplot(admission, y = "gpa")
+```
+
+## Rank
+
+```{r}
+admission %>% 
+  group_by(rank) %>% 
+  summarise(n = n(), prop = n/nrow(admission))
+```
+
+```{r}
+admission %>% 
+  ggplot(aes(x = rank, fill = rank)) +
+  geom_bar()
+```
+
+# Regresion Logistica
+
+```{r}
+adm_mod <- glm(admit ~ ., data = admission, family = "binomial")
+summary(adm_mod)
+```
+
+```{r}
+exp(coef(adm_mod))
+```
+
+```{r}
+confint(adm_mod)
+```
+
+```{r}
+l = cbind(0,0,0,1,-1,0)
+wald.test(b = coef(adm_mod), Sigma = vcov(adm_mod), L = l)
+```
+
+```{r}
+exp(cbind(OR = coef(adm_mod), confint(adm_mod)))
+```
+
+```{r}
+MASS::stepAIC(adm_mod)
+```
+
+## Prediccion
+
+```{r}
+admission <- admission %>% 
+  mutate(admit_prob = predict(adm_mod, type = "response"),
+         admit_pred = ifelse(admit_prob > 0.5, 1, 0))
+admission
+```
+
+```{r}
+table(admission$admit, admission$admit_pred)
+```
+
+```{r}
+table(admission$admit, admission$admit_pred)/nrow(admission)
+```
+
+```{r}
+admission %>% 
+  group_by(admit) %>% 
+  summarise(n = n(), prop = n/nrow(admission))
+```
+
+```{r}
+confusionMatrix(factor(admission$admit), factor(admission$admit_pred))
+```

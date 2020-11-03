@@ -1,0 +1,119 @@
+---
+title: "Pruebas Estadisticas"
+author: "Walter Chanava"
+date: "30/9/2020"
+output: 
+  html_document:
+    code_folding: hide
+    df_print: paged
+    fig_caption: true
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T,
+                      message = F,
+                      error = F,
+                      fig.align = 'center',
+                      warning = F)
+```
+
+# Introduccion
+
+![](https://quierocuidarme.dkvsalud.es/sites/default/files/styles/vivelasalud_ficha_825x464/public/imagen/2017-05/glucosa_0.jpg?h=08f9fde2&itok=8md4Hs5b)
+
+En un hospital universitario del pais se esta realizando un estudio para **conocer si la tolerancia de glucosa en sujetos sanos tiende a decrecer con la edad**. Para ellos se realizo un test oral de glucosa a dos muestras de pacientes sanos, unos jovenes y otros adultos. El test consistio en medir el nivel de glucosa en sangre en el momento de la ingestion (nivel basal) de 100 grs de glucosa y a los 60 minutos de la toma.
+
+# Paquetes
+
+```{r}
+library(readr)
+library(dplyr)
+library(rstatix)
+library(ggpubr)
+```
+
+-   readr: para leer archivos csv en R.
+
+-   dplyr: para manipular los datos en forma de tablas.
+
+-   rstatix: trae pruebas inferenciales.
+
+-   ggpubr: para graficar boxplots.
+
+# Datos
+
+```{r}
+basal <- read_csv("../Data/control-basal.csv")
+basal
+```
+
+# EDA
+
+```{r}
+basal %>% 
+  group_by(Edad) %>% 
+  get_summary_stats()
+
+```
+
+## Prueba t para la media de Valor
+
+```{r}
+t1 <- basal %>% 
+  t_test(Valor ~ 1)
+t1
+```
+
+```{r}
+ggboxplot(data = basal, y = "Valor", color = "orange")
+```
+
+Como el valor *p* de la prueba t es menor que 0.05, se rechaza $H_0:\mu=0$. Es decir, la media de **Valor** es diferente de 0.
+
+```{r}
+t2 <- basal %>% 
+  t_test(Valor ~ Sexo)
+t2
+```
+
+```{r}
+ggboxplot(data = basal, x = "Sexo", y = "Valor", color = "Sexo") +
+  stat_pvalue_manual(data = t2, label = "T-test, p = {p}", y.position = 300)
+```
+
+Se rechaza $H0:\mu_1=\mu_2$ . Las medias de los grupos de hombres y mujeres son diferentes.
+
+```{r}
+basal %>% 
+  filter(Edad == "Joven") %>% 
+  t_test(Valor ~ Sexo)
+```
+
+En este caso se acepta la hipotesis $H_0:\mu_1=\mu_2$ porque el valor *p* es mayor que 0.05.
+
+```{r}
+basal %>% 
+  t_test(Valor ~ Tipo, paired = TRUE)
+```
+
+-   Tomar en cuenta si los datos son pareados para agregar el argumento `paired = TRUE`.
+
+```{r}
+basal %>% 
+  filter(Edad == "Joven") %>% 
+  group_by(Tipo) %>% 
+  get_summary_stats()
+```
+
+```{r}
+basal %>% 
+  group_by(Edad) %>% 
+  t_test(Valor ~ Tipo, paired = TRUE)
+```
+
+### Conclusion:
+
+Ya que las medias de ambos grupos (Jovenes y Adultos) cambian significativamente en el analisis previo como posterior a 60 min. Se infiere que la tolerancia a la glucosa si cambia por la edad. x

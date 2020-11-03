@@ -1,0 +1,31 @@
+"0","cereal <- read_csv(""../Data/cereal.csv"")"
+"2","Missing column names filled in: 'X1' [1]"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  X1 = [32mcol_double()[39m,
+  name = [31mcol_character()[39m,
+  mfr = [31mcol_character()[39m,
+  type = [31mcol_character()[39m,
+  calories = [32mcol_double()[39m,
+  protein = [32mcol_double()[39m,
+  fat = [32mcol_double()[39m,
+  sodium = [32mcol_double()[39m,
+  fiber = [32mcol_double()[39m,
+  carbo = [32mcol_double()[39m,
+  sugars = [32mcol_double()[39m,
+  potass = [32mcol_double()[39m,
+  vitamins = [32mcol_double()[39m,
+  shelf = [32mcol_double()[39m,
+  weight = [32mcol_double()[39m,
+  cups = [32mcol_double()[39m,
+  rating = [32mcol_double()[39m
+)
+
+"
+"0","cereal_tbl <- cereal %>% "
+"0","  select(-X1, -name) %>% "
+"0","  mutate(mfr = factor(mfr),"
+"0","         type = factor(type),"
+"0","         shelf = factor(shelf))"
+"0","cereal_tbl"

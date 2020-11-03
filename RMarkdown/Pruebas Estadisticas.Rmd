@@ -1,0 +1,48 @@
+---
+title: "Pruebas Estadisticas"
+author: "Walter Chanava"
+date: "30/9/2020"
+output: html_document
+---
+
+# Paquetes
+
+```{r}
+library(readr)
+library(dplyr)
+library(rstatix)
+```
+
+-   readr: para leer archivos csv en R.
+
+-   dplyr: para manipular los datos en forma de tablas.
+
+# Datos
+
+```{r}
+basal <- read_csv("../Data/control-basal.csv")
+basal
+```
+
+# EDA {.tabset}
+
+## Prueba t para la media de **Valor**
+
+```{r}
+basal %>% 
+  get_summary_stats()
+```
+
+```{r}
+basal %>% 
+  t_test(Valor ~ 1) # mu = 0
+```
+
+Como el valor *p* de la prueba t es menor que 0.05, se rechaza $H_0:\mu=0$ .
+
+## Prueba de levene para Valor por Edad
+
+```{r}
+basal %>% 
+  levene_test(Valor ~ Edad)
+```

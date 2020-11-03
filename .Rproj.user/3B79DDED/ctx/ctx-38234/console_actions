@@ -1,0 +1,12 @@
+{
+    "data" : [
+        "> ",
+        "install.packages(\"tmap\")",
+        "Error in install.packages : Updating loaded packages\n\nRestarting R session...\n\n"
+    ],
+    "type" : [
+        0,
+        1,
+        2
+    ]
+}

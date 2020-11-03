@@ -1,0 +1,4 @@
+"0","adm_glm_res <- glm_spec %>% "
+"0","  fit_resamples(admit ~ ., adm_folds)"
+"0",""
+"0","collect_metrics(adm_glm_res)"

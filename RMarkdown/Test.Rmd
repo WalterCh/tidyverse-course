@@ -1,0 +1,38 @@
+---
+title: "Exploracion de datos 'diamonds'"
+author: "Walter Chanavá"
+date: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+---
+
+### Paquetes
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+- dplyr: manipulacion de datos en forma de tablas.
+- ggplot2: visualizacion.
+
+### Datos
+
+```{r}
+data("diamonds", package = "ggplot2")
+head(diamonds)
+```
+
+- carat: peso de los diamantes
+- cut: calidad de los diamantes
+- color: calidad del color de los diamantes
+
+## EDA
+
+Aqui voy a explorar los datos
+
+
+
+

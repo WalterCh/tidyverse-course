@@ -1,0 +1,3 @@
+"0","t2 <- basal %>% "
+"0","  t_test(Valor ~ Sexo)"
+"0","t2"

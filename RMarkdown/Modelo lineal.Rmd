@@ -1,0 +1,79 @@
+---
+title: "Modelo lineal"
+author: "Walter Chanava"
+date: "12/10/2020"
+output: html_document
+---
+
+# Paquetes
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+# Datos
+
+```{r}
+x <- 1:100
+y <- x + runif(100, 1, 5)
+```
+
+# Modelo Lineal MCO
+
+```{r}
+plot(x, y)
+```
+
+```{r}
+model1 <- lm(y ~ x)
+model1
+```
+
+```{r}
+Anova(model1, type = 3)
+```
+
+```{r}
+model_sum <- summary(model1)
+model_sum
+```
+
+```{r}
+y_pred <- predict(model1)
+data <- tibble(x, y, y_pred)
+data
+```
+
+```{r}
+ggplot(data, aes(x = x, y = y)) +
+  geom_point() +
+  geom_line(aes(x = x, y = y_pred), col = "red")
+```
+
+# Modelo Transformado
+
+```{r}
+data_ind <- tibble(
+  producto = c(9491, 10315, 9695, 10426, 10045, 10328, 11257, 9969, 12739, 
+               11387, 10151, 13172),
+  capital = c(530, 530, 540, 555, 545, 540, 545, 585, 625, 555, 605, 520),
+  trabajo = c(250, 278, 250, 275, 260, 285, 350, 225, 360, 350, 225, 390)
+)
+data_ind
+```
+
+```{r}
+model2 <- lm(log(producto) ~ log(capital) + log(trabajo), data = data_ind)
+model2
+```
+
+```{r}
+model2$coefficients
+```
+
+```{r}
+exp(model2$coefficients[1])
+```
+
+El modelo estimado es: $Y=19.23K^{0.54}L^{0.52}$.

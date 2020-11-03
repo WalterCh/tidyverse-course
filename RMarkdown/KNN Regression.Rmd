@@ -1,0 +1,71 @@
+---
+title: "KNN Regression"
+author: "Walter Chanava"
+date: "19/10/2020"
+output: 
+  html_document:
+    code_folding: hide
+    df_print: paged
+    fig_caption: true
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T,
+                      message = F,
+                      error = F,
+                      fig.align = 'center',
+                      warning = F)
+
+```
+
+# K Nearest Neighbourhoods
+
+# Paquetes
+
+```{r}
+library(class)
+library(caret)
+library(readr)
+library(dplyr)
+library(rsample)
+```
+
+# Data
+
+```{r}
+admission <- read_csv("https://stats.idre.ucla.edu/stat/data/binary.csv")
+admission_tbl <- admission %>% 
+  mutate(gre = scale(gre),
+         gpa = scale(gpa),
+         rank2 = ifelse(rank == 2, 1, 0),
+         rank3 = ifelse(rank == 3, 1, 0),
+         rank4 = ifelse(rank == 4, 1, 0)) %>% 
+  select(-rank)
+admission_tbl
+```
+
+## Split
+
+```{r}
+adm_split <- initial_split(admission_tbl)
+adm_train <- training(adm_split)
+adm_test  <- testing(adm_split)
+```
+
+Se divide el dataset en 2, 75% para entrenamiento y 25% para la validacion. (Seleccion aleatoria)
+
+# Model
+
+```{r}
+adm_knnpred <- knn(train = select(adm_train, -1), 
+                   test = select(adm_test, -1),
+                   cl = pull(select(adm_train, 1)))
+adm_knnpred
+```
+
+```{r}
+confusionMatrix(factor(adm_test$admit), adm_knnpred)
+```

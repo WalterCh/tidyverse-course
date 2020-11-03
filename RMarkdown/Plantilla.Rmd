@@ -1,0 +1,16 @@
+---
+title: "Your Document Title"
+author: "Document Author"
+date: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+---
+
+```{r}
+# getwd()
+library(readr)
+presion <- read_csv("../Data/Presion.csv")
+presion
+```

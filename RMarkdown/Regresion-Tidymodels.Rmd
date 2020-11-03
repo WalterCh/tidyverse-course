@@ -1,0 +1,109 @@
+---
+title: "Regresion con Tidymodels"
+author: "Walter Chanava"
+date: "26/10/2020"
+output: 
+  html_document:
+    code_folding: hide
+    df_print: paged
+    fig_caption: true
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = T,
+  message = F,
+  error = F,
+  fig.align = 'center',
+  warning = F
+)
+```
+
+# Paquetes
+
+```{r}
+library(readr)
+library(tidymodels)
+library(dplyr)
+library(rstatix)
+```
+
+# Datos
+
+```{r}
+cereal <- read_csv("../Data/cereal.csv")
+cereal_tbl <- cereal %>% 
+  select(-X1, -name) %>% 
+  mutate(mfr = factor(mfr),
+         type = factor(type),
+         shelf = factor(shelf))
+cereal_tbl
+```
+
+# Modelos
+
+## Modelo lineal por MCO
+
+```{r}
+lm_spec <- linear_reg() %>% 
+  set_engine("lm")
+
+cereal_lm_fit <- lm_spec %>% 
+  fit(rating ~ ., data = cereal_tbl)
+
+cereal_lm_fit
+```
+
+## Random Forest
+
+```{r}
+rf_spec <- rand_forest() %>% 
+  set_engine("ranger") %>% 
+  set_mode("regression")
+
+cereal_rf_fit <- rf_spec %>% 
+  fit(rating ~ ., data = cereal_tbl)
+
+cereal_rf_fit
+```
+
+# Evaluacion
+
+## Modelo lineal
+
+```{r}
+cereal_lm_fit %>% 
+  predict(new_data = cereal_tbl) %>% 
+  mutate(Obs = cereal_tbl$rating) %>% 
+  rmse(Obs, .pred)
+```
+
+## Random Forest
+
+```{r}
+cereal_rf_fit %>% 
+  predict(new_data = cereal_tbl) %>% 
+  mutate(Obs = cereal_tbl$rating) %>% 
+  rmse(Obs, .pred)
+```
+
+# Pred plot
+
+```{r}
+cereal_lm_fit %>% 
+  predict(new_data = cereal_tbl) %>% 
+  mutate(Obs = cereal_tbl$rating, 
+         Model = "lm") %>% 
+  bind_rows(
+    cereal_rf_fit %>% 
+      predict(new_data = cereal_tbl) %>% 
+      mutate(Obs = cereal_tbl$rating, 
+             Model = "rf")
+  ) %>% 
+  ggplot(aes(x = .pred, y = Obs, color  = Model)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+```

@@ -1,0 +1,153 @@
+---
+title: "Intro-a-Tidymodels"
+author: "Walter Chanava"
+date: "23/10/2020"
+output: 
+  html_document:
+    code_folding: hide
+    df_print: paged
+    fig_caption: true
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = T,
+  message = F,
+  error = F,
+  fig.align = 'center',
+  warning = F
+)
+```
+
+# Paquetes
+
+```{r}
+library(readr)
+library(tidymodels)
+library(caret)
+```
+
+# Datos
+
+```{r}
+admission <- read_csv("https://stats.idre.ucla.edu/stat/data/binary.csv")
+admission_tbl <- admission %>%
+  mutate(admit = factor(admit),
+         rank = factor(rank))
+admission_tbl
+```
+
+# Preprocesado
+
+```{r}
+adm_split <- initial_split(admission_tbl)
+adm_train <- training(adm_split)
+adm_test  <- testing(adm_split)
+
+adm_rec <- recipe(admit ~ ., data = adm_train) %>%
+  step_dummy(rank) %>%
+  step_normalize(gre, gpa) %>%
+  prep()
+
+juice(adm_rec)
+```
+
+# Modelado
+
+## Regresion logistica
+
+```{r}
+glm_spec <- logistic_reg() %>%
+  set_engine("glm")
+
+adm_glm_fit <- glm_spec %>%
+  fit(admit ~ ., data = juice(adm_rec))
+
+adm_glm_fit
+```
+
+## KNN
+
+```{r}
+knn_spec <- nearest_neighbor() %>%
+  set_engine("kknn") %>%
+  set_mode("classification")
+
+adm_knn_fit <- knn_spec %>%
+  fit(admit ~ ., data = juice(adm_rec))
+
+adm_knn_fit
+```
+
+## Arbol de decision
+
+```{r}
+tree_spec <- decision_tree() %>% 
+  set_engine("rpart") %>% 
+  set_mode("classification")
+
+adm_tree_fit <- tree_spec %>% 
+  fit(admit ~ ., data = juice(adm_rec))
+
+adm_tree_fit
+```
+
+# Resampling
+
+```{r}
+adm_folds <- vfold_cv(juice(adm_rec))
+adm_folds
+```
+
+## Metricas de Regresion Logistica
+
+```{r}
+adm_glm_res <- glm_spec %>% 
+  fit_resamples(admit ~ ., adm_folds)
+
+collect_metrics(adm_glm_res)
+```
+
+## Metricas del modelo KNN
+
+```{r}
+adm_knn_res <- knn_spec %>% 
+  fit_resamples(admit ~ ., adm_folds)
+
+collect_metrics(adm_knn_res)
+```
+
+## Metricas del modelo de arbol de decision
+
+```{r}
+adm_tree_res <- tree_spec %>% 
+  fit_resamples(admit ~ ., adm_folds)
+
+collect_metrics(adm_tree_res)
+```
+
+# Predicciones
+
+```{r}
+adm_glm_pred <- adm_glm_fit %>% 
+  predict(new_data = bake(adm_rec, new_data = adm_test), 
+          type = "prob") %>% 
+  mutate(Y_Obs = adm_test$admit,
+         Y_Pred = factor(ifelse(.pred_0 > .pred_1, 0, 1)))
+
+confusionMatrix(adm_glm_pred$Y_Obs, adm_glm_pred$Y_Pred)
+```
+
+```{r}
+adm_glm_fit %>%
+  predict(new_data = bake(adm_rec,
+                          new_data = tibble(
+                            gre = 500,
+                            gpa = 4,
+                            rank = 1
+                          )),
+          type = "prob") 
+```
