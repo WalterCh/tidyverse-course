@@ -1,0 +1,15 @@
+---
+title: "pruebas estadisticas"
+author: "javier mechato"
+date: "27/9/2020"
+output: html_document
+---
+
+## Paquetes
+
+```{r}
+library(readr)
+library(dplyr)
+library(rstatix)
+library(ggpubr)
+```

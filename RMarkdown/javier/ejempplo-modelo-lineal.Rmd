@@ -1,0 +1,52 @@
+---
+title: "ejemplo modelo lineal"
+author: "javier"
+date: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+---
+
+# Paquetes
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+# Datos
+
+```{r}
+temp <- c(460, 450, 440, 430, 420, 410, 450, 440, 430, 420, 410, 400, 420, 410, 400)
+perd <- c(0.3, 0.3, 0.4, 0.4, 0.6, 0.5, 0.5, 0.6, 0.6, 0.6, 0.7, 0.6, 0.6, 0.6, 0.6)
+```
+
+```{r}
+Data <-tibble(temp,perd)
+Data
+```
+
+```{r}
+plot(temp,perd)
+```
+
+# Modelo Lineal
+
+```{r}
+modelo <- lm(perd ~ temp, data = Data)
+summary(modelo)
+```
+
+```{r}
+Data_pred <-Data %>% 
+  mutate(y_pred = predict(modelo))
+Data_pred
+```
+
+```{r}
+ggplot(Data_pred, aes(x = temp, y = perd))+
+  geom_point()+
+  geom_line(aes(x = temp, y = y_pred), col = "red")
+  
+```

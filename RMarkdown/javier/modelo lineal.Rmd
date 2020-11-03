@@ -1,0 +1,83 @@
+---
+title: "modelo lineal"
+author: "javier"
+date: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+---
+
+# Paquetes
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+# Datos
+
+```{r}
+x <- 1:100
+y <- x + runif(100, 1, 5)
+```
+
+# Modelo lineal MCO
+
+```{r}
+plot(x,y)
+```
+
+```{r}
+model1 <- lm(y ~ x)
+model1
+```
+
+```{r}
+anova(model1)
+```
+
+```{r}
+model_sum <- summary(model1)
+model_sum$r.squared
+```
+
+```{r}
+model1$coefficients
+```
+
+```{r}
+model1$residuals
+```
+
+```{r}
+model1$fitted.values
+```
+
+```{r}
+model1$model
+```
+
+```{r}
+model1$call
+```
+
+```{r}
+y_pred <- predict(model1)
+data <- tibble(x, y, y_pred)
+data
+```
+
+```{r}
+ggplot(data, aes(x = x, y = y))+
+  geom_point()+
+  geom_line(aes(x = x, y = y_pred), col = "RED")
+```
+
+# Modelos transformados
+
+```{r}
+tibble(
+  producto c=(9491, 10315, 9695)
+)
+```

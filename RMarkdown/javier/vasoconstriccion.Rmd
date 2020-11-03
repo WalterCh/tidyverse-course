@@ -1,0 +1,129 @@
+---
+title: "modelo de regresion logistica a un ejemplo de salud publica "
+author: "javier mechato"
+date: "16/10/2020"
+output: 
+  html_document:
+    code_folding: hide
+    df_print: paged
+    fig_caption: true
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+```{r}
+{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T,
+                      message = F,
+                      error = F,
+                      fig.align = 'center',
+                      warning = F)
+```
+
+![](https://arribasalud.com/wp-content/uploads/2018/05/vasoconstricción-665x285.jpg)
+
+# Introduccion
+
+datos extraidos del libro easp regresion logistica en salud publica, el estudio consiste en un ensayo para estudiar un reflejo fisiologico de vaso constriccion en la piel de los dedos despues de una inspiracion profunda
+
+# Paquetes
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(ggpubr)
+library(rstatix)
+library(caret)
+```
+
+-   readr: para leer archivos csv.
+
+-   dplyr: para manipular tablas.
+
+-   ggplot2: para graficos.
+
+-   rstatix: para obtener medidas de resumen de variables numericas.
+
+-   caret: para hacer una matriz de confusion.
+
+# Data
+
+```{r}
+vasoconstriccion <- read_csv("../Data/vasoconstriccion.csv")
+vaso_tbl <- vasoconstriccion %>% 
+  mutate(VOL = as.numeric(scan(text = VOL, dec = ",", sep = ".")),
+         TASA = as.numeric(scan(text = TASA, dec = ",", sep = ".")))
+vaso_tbl
+```
+
+-   ID : indice
+
+-   VOL : volumen de aire inspirado
+
+-   TASA : velocidad a la que se inspira
+
+-   RESP : es la presencia o no de vasoconstriccion
+
+# EDA
+
+## Resp
+
+```{r}
+vasoconstriccion %>% 
+  group_by(RESP) %>% 
+  summarise(n = n(), prop = n/nrow(vasoconstriccion))
+```
+
+```{r}
+vasoconstriccion %>% 
+  ggplot(aes(x = RESP)) +
+  geom_bar()
+```
+
+## Vol
+
+```{r}
+vaso_tbl %>% 
+  get_summary_stats(VOL)
+```
+
+```{r}
+ggboxplot(vaso_tbl, y = "VOL")
+```
+
+## Tasa
+
+```{r}
+vaso_tbl %>% 
+  get_summary_stats(TASA)
+```
+
+```{r}
+ggboxplot(vaso_tbl, y = "TASA")
+```
+
+# Regresion logistica
+
+```{r}
+vaso_mod <- glm(RESP ~ VOL + TASA,data = vaso_tbl, family = "binomial")
+summary(vaso_mod)
+```
+
+```{r}
+exp(cbind(OR = coef(vaso_mod), confint(vaso_mod)))
+```
+
+# Prediccion
+
+```{r}
+vaso_tbl <- vaso_tbl %>% 
+  mutate(vaso_prob = predict(vaso_mod, type = "response"),
+         vaso_pred = ifelse(vaso_prob > 0.5, 1, 0))
+vaso_tbl
+```
+
+```{r}
+confusionMatrix(factor(vaso_tbl$RESP), factor(vaso_tbl$vaso_pred))
+```

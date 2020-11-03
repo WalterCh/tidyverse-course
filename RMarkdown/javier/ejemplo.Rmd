@@ -1,0 +1,53 @@
+---
+title: "ejemplo1"
+author: "javier"
+date: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+---
+
+### Paquetes
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+### Datos
+
+```{r}
+data("mpg", package = "ggplot2")
+mpg
+```
+
+### EDA
+
+```{r}
+mpg %>% 
+  count(manufacturer) %>% 
+  arrange(desc(n))
+```
+
+- dodge tiene la mayor cantidad de carros en la base de datos
+- lincoln tiene la menor cantidad de carros en la base de datos
+
+```{r}
+ggplot(mpg, aes(x = manufacturer))+
+  geom_bar()+
+  coord_flip()
+```
+
+
+```{r}
+ggplot(mpg, aes(x = displ, col = factor(cyl)))+
+  geom_boxplot()
+```
+
+
+
+
+
+
+

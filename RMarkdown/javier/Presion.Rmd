@@ -1,0 +1,83 @@
+---
+title: "Presion(prueba parametricas)"
+author: "Javier"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    df_print: paged
+---
+
+![](https://d500.epimg.net/cincodias/imagenes/2020/03/26/companias/1585220679_850148_1585221862_noticia_normal.jpg){width="561"}
+
+# Paquetes
+
+```{r paquetes}
+library(readr)
+library(rstatix)
+library(dplyr)
+```
+
+# Datos
+
+```{r}
+presion <- read_csv("../Data/Presion.csv") 
+presion
+```
+
+los datos provienen de un estudio de epidemiologico en la que se les midio la presion a 60 personas despues que se les suministro una dosis de calcio y de placebo
+
+# EDA
+
+## Prueba de medias
+
+```{r}
+presion %>% 
+  group_by(Grupo) %>% 
+  summarise(media = mean(PS))
+```
+
+```{r}
+presion %>% 
+  t_test(PS ~ Grupo)
+```
+
+como el p es mayor a 0.05 se acepta la hipotesis que la media de los grupos son iguales
+
+## prueba de proporciones
+
+```{r}
+Tabla_prop <- tibble(x = c(8, 10), x2= c(36-8, 24-10))
+Tabla_prop
+```
+
+```{r}
+Tabla_prop %>% 
+  prop_test(detailed = TRUE)
+```
+
+como el p es mayor a 0.05 se acepta la hipotesis que las proporciones de los grupos son iguales
+
+## Pruebade hipotesis para un solo valor de la media
+
+```{r}
+presion %>% 
+  get_summary_stats(PS)
+```
+
+la media de la variable PS es 115.17 con una desviacion estandar de 1.12
+
+```{r}
+presion %>% 
+  t_test(PS ~ 1, mu=110)
+```
+
+como el P- value es menor a 0.05 rechazamos $H_0:\mu=110$ porconsiguiente decimos que el promedio es diferente de 110 $H_0:\mu\not=110$
+
+## Prueba de homogeneidad de varianzas
+
+```{r}
+presion %>% 
+  levene_test(PS ~ Grupo)
+```
+
+como el P-value = 0.112 es mayor a 0.05 entonces rechazamos la $H_0$ de igualdad de varianzas concluyendo que las varianzas son diferentes al 95% de confianza

@@ -1,0 +1,187 @@
+---
+title: "ejemplo-tidyverse"
+author: "javier mechato"
+date: "26/10/2020"
+output: 
+  html_document:
+    code_folding: hide
+    df_print: paged
+    fig_caption: true
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+```{rsetup, include=FALSE}
+knitr::opts_chunk$set(echo = T,
+                      message = F,
+                      error = F,
+                      fig.align = 'center',
+                      warning = F)
+```
+
+# Paquetes
+
+```{r}
+library(readr)
+library(tidymodels)
+library(caret)
+```
+
+# Datos
+
+```{r}
+vasoconstriccion <- read_csv("../Data/vasoconstriccion.csv")
+vaso_tbl <- vasoconstriccion %>% 
+  mutate(VOL = as.numeric(scan(text = VOL, dec = ",", sep = ".")),
+         TASA = as.numeric(scan(text = TASA, dec = ",", sep = ".")),
+         RESP = factor(RESP)) %>% 
+  select(-ID)
+vaso_tbl
+```
+
+# Procesado
+
+```{r}
+resp_rec <- recipe(RESP ~ ., data = vaso_tbl) %>% 
+  step_normalize(VOL, TASA) %>% 
+  prep()
+
+juice(resp_rec)
+```
+
+# Modelado
+
+## regresion logistica
+
+```{r}
+glm_spec <- logistic_reg() %>% 
+  set_engine("glm")
+
+resp_glm_fit <- glm_spec %>% 
+  fit(RESP ~ ., data = juice(resp_rec))
+
+resp_glm_fit
+```
+
+## KNN
+
+```{r}
+knn_spec <- nearest_neighbor() %>%
+  set_engine("kknn") %>%
+  set_mode("classification")
+
+resp_knn_fit <- knn_spec %>%
+  fit(RESP ~ ., data = juice(resp_rec))
+
+resp_knn_fit
+```
+
+## Random forest
+
+```{r}
+rf_spec <- rand_forest() %>% 
+  set_engine("ranger") %>% 
+  set_mode("classification")
+
+resp_rf_fit <- rf_spec %>% 
+  fit(RESP ~ ., data = juice(resp_rec))
+
+resp_rf_fit
+```
+
+# Evaluacion
+
+## Regresion logistica
+
+```{r}
+resp_glm_pred <- resp_glm_fit %>% 
+  predict(new_data = juice(resp_rec)) %>% 
+  mutate(obs = vaso_tbl$RESP)
+
+resp_glm_pred
+```
+
+```{r}
+confusionMatrix(resp_glm_pred$.pred_class,
+                resp_glm_pred$obs)
+```
+
+## KNN
+
+```{r}
+resp_knn_pred <- resp_knn_fit %>% 
+  predict(new_data = juice(resp_rec)) %>% 
+  mutate(obs = vaso_tbl$RESP)
+
+resp_knn_pred
+```
+
+```{r}
+confusionMatrix(resp_knn_pred$.pred_class,
+                resp_knn_pred$obs)
+```
+
+## Random forest
+
+```{r}
+resp_rf_pred <- resp_rf_fit %>% 
+  predict(new_data = juice(resp_rec)) %>% 
+  mutate(obs = vaso_tbl$RESP)
+
+resp_rf_pred
+```
+
+```{r}
+confusionMatrix(resp_rf_pred$.pred_class,
+                resp_rf_pred$obs)
+```
+
+# No vale xD
+
+# Testing
+
+## Regresion logistica
+
+```{r}
+resp_glm_pred2 <- resp_glm_fit %>% 
+  predict(new_data = bake(resp_rec,new_data = resp_test)) %>% 
+  mutate(obs = resp_test$RESP)
+
+resp_glm_pred2
+```
+
+```{r}
+confusionMatrix(resp_glm_pred2$.pred_class,
+                resp_glm_pred2$obs)
+```
+
+## KNN
+
+```{r}
+resp_knn_pred2 <- resp_knn_fit %>% 
+  predict(new_data = bake(resp_rec, new_data = resp_test)) %>% 
+  mutate(obs = resp_test$RESP)
+
+resp_knn_pred2
+```
+
+```{r}
+confusionMatrix(resp_knn_pred2$.pred_class,
+                resp_knn_pred2$obs)
+```
+
+## Random forest
+
+```{r}
+resp_rf_pred2 <- resp_rf_fit %>% 
+  predict(new_data = bake(resp_rec, new_data = resp_test)) %>% 
+  mutate(obs = resp_test$RESP)
+
+resp_rf_pred2
+```
+
+```{r}
+confusionMatrix(resp_rf_pred2$.pred_class,
+                resp_rf_pred2$obs)
+```

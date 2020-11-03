@@ -1,0 +1,73 @@
+---
+title: "Infarto-anticonceptivos"
+author: "javier mechato"
+date: "16/10/2020"
+output: html_document
+---
+
+# Paquetes
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(ggpubr)
+library(rstatix)
+```
+
+-   readr: para leer archivos csv.
+
+-   dplyr: para manipular tablas.
+
+-   ggplot2: para graficos.
+
+-   ggpubr: para un boxplot.
+
+-   rstatix: para obtener medidas de resumen de variables numericas.
+
+# Datos
+
+```{r}
+infarto <- read_csv("../Data/infarto-anticonceptivos.csv")
+infarto
+```
+
+# EDA
+
+## AO
+
+```{r}
+infarto %>% 
+  group_by(AO) %>% 
+  summarise(n = n(), prop = n/nrow(infarto))
+```
+
+```{r}
+infarto %>% 
+  ggplot(aes(x = AO)) +
+  geom_bar()
+```
+
+## Edad
+
+```{r}
+infarto %>% 
+  get_summary_stats(Edad)
+```
+
+```{r}
+ggboxplot(infarto, y = "Edad")
+```
+
+## Fuma
+
+```{r}
+infarto %>% 
+  get_summary_stats(Fuma)
+```
+
+```{r}
+ggboxplot(infarto, y = "Fuma")
+```
+
+# Regresion logistica

@@ -1,0 +1,50 @@
+---
+title: "regresion KNN"
+author: "javier mechato"
+date: "19/10/2020"
+output: html_document
+---
+
+# Paquetes
+
+```{r}
+library(class)
+library(caret)
+library(dplyr)
+library(rsample)
+```
+
+# Data
+
+```{r}
+data("iris")
+iris_tbl <- iris %>% 
+  mutate(Sepal.Length = scale(Sepal.Length),
+         Sepal.Width = scale(Sepal.Width),
+         Petal.Length = scale(Petal.Length),
+         Petal.Width = scale(Petal.Width))
+iris_tbl
+```
+
+# Split
+
+```{r}
+iris_split <- initial_split(iris_tbl)
+iris_train <- training(iris_split)
+iris_test <- testing(iris_split)
+```
+
+# Modelo
+
+```{r}
+iris_knnpred <- knn(train = select(iris_train, -5), 
+                   test = select(iris_test, -5),
+                   cl = pull(select(iris_train, 5)))
+iris_knnpred
+```
+
+# Matriz de confusion
+
+```{r}
+confusionMatrix(factor(iris_test$Species), iris_knnpred)
+```

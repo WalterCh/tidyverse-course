@@ -1,0 +1,152 @@
+---
+title: "analisis de salud mental"
+author: "javier mechator"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    code_folding: hide
+    df_print: paged
+    fig_caption: true
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T,
+                      message = F,
+                      error = F,
+                      fig.align = 'center',
+                      warning = F)
+```
+
+# Introduccion
+
+# Paquetes
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(rstatix)
+library(ggpubr)
+
+```
+
+# Datos
+
+```{r}
+mental <- read_csv("../Data/limpiar/DAT SALUD MENTAL - ATENDIDOS.csv",
+                   locale = locale(encoding = "ISO-8859-1"),
+                   col_names = TRUE,
+                   col_types = NULL)
+mental
+```
+
+# EDA
+
+```{r}
+mental %>% 
+  separate(Etapa_1, c("Etapa_A", "Etapa_B")) %>% 
+  mutate(
+    Etapa_A = case_when(
+      Etapa_A == "ene" ~ "01",
+      Etapa_A == "feb" ~ "02",
+      Etapa_A == "mar" ~ "03",
+      Etapa_A == "abr" ~ "04",
+      Etapa_A == "may" ~ "05",
+      Etapa_A == "jun" ~ "06",
+      Etapa_A == "jul" ~ "07",
+      Etapa_A == "ago" ~ "08",
+      Etapa_A == "sep" ~ "09",
+      Etapa_A == "oct" ~ "10",
+      Etapa_A == "nov" ~ "11",
+      Etapa_A == "dic" ~ "12",
+     TRUE ~ as.character(Etapa_A)),
+    Etapa_B = case_when(
+      Etapa_B == "ene" ~ "01",
+      Etapa_B == "feb" ~ "02",
+      Etapa_B == "mar" ~ "03",
+      Etapa_B == "abr" ~ "04",
+      Etapa_B == "may" ~ "05",
+      Etapa_B == "jun" ~ "06",
+      Etapa_B == "jul" ~ "07",
+      Etapa_B == "ago" ~ "08",
+      Etapa_B == "sep" ~ "09",
+      Etapa_B == "oct" ~ "10",
+      Etapa_B == "nov" ~ "11",
+      Etapa_B == "dic" ~ "12",
+      TRUE ~ as.character(Etapa_B)),
+    Etapa_A = as.numeric(Etapa_A),
+    Etapa_B = as.numeric(Etapa_B))
+```
+
+## Total de atenciones por Departamento
+
+```{r}
+mental %>% 
+  group_by(Departamento) %>% 
+  summarise(Conteo = n()) %>%
+  arrange(desc(Conteo))
+```
+
+```{r}
+ggplot(data = mental %>% 
+         group_by(Departamento) %>% 
+         summarise(conteo = n())) +
+  geom_col(mapping = aes(x = Departamento, y = conteo, fill = Departamento)) +
+  coord_flip()
+```
+
+# Total de atenciones por Mes
+
+```{r}
+mental %>% 
+  group_by(NroMes) %>% 
+  summarise(count = n()) %>% 
+  print(n = Inf)
+```
+
+# Grafico N°2
+
+```{r}
+ggplot(mental, aes(x = NroMes, fill = as.factor(NroMes)))+
+  scale_x_continuous(breaks = 1:9)+
+  geom_bar()+
+  theme(legend.position = "none")+
+  labs(y = "Conteo")
+```
+
+# Total de diagnosticos
+
+```{r}
+mental %>% 
+  group_by(Diagnostico) %>% 
+  summarise(count = n()) %>% 
+  arrange(desc(count)) %>% 
+  print(n = Inf)
+```
+
+# Grafico 3
+
+```{r}
+ggplot(mental, aes(x = Diagnostico, y = count()))+
+  geom_bar()
+```
+
+# Diagnosticos por Atenciones
+
+```{r}
+mental %>% 
+  group_by(Diagnostico, Atenciones) %>% 
+  summarise(count = n()) %>% 
+  arrange(desc(count)) %>% 
+  print(n = Inf)
+```
+
+# Grafico 4
+
+```{r}
+
+```
