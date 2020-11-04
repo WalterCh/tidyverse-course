@@ -1,0 +1,51 @@
+---
+title: "GeocomputationR"
+author: "Walter Chanava"
+date: "4/11/2020"
+output: 
+  html_document:
+    code_folding: hide
+    df_print: paged
+    fig_caption: true
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = T,
+  message = F,
+  error = F,
+  fig.align = 'center',
+  warning = F
+)
+```
+
+# Paquetes
+
+```{r}
+library(sf)
+library(raster)
+library(spData)
+library(dplyr)
+```
+
+# Datos
+
+```{r}
+data("world", package = "spData")
+world
+```
+
+```{r}
+plot(world)
+```
+
+# EDA
+
+```{r}
+world %>% 
+  filter(continent == "South America") %>% 
+  plot()
+```
