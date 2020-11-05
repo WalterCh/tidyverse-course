@@ -30,6 +30,7 @@ library(sf) # simple features
 # library(spData)
 library(dplyr)
 library(tmap)
+library(rstatix)
 ```
 
 # Datos
@@ -66,7 +67,17 @@ world_LE65 <- world %>%
 world_LE65
 ```
 
-## Mapa estatico
+```{r}
+world %>% 
+  st_drop_geometry() %>% 
+  get_summary_stats(gdpPercap)
+```
+
+```{r}
+
+```
+
+## Mapa estatico de esperanza de vida
 
 ```{r}
 tm_shape(world_LE65) +
@@ -74,7 +85,7 @@ tm_shape(world_LE65) +
   tm_fill("lifeExp", breaks = c(65, 75, 85))
 ```
 
-## Mapa interactivo
+## Mapa interactivo de esperanza de vida
 
 ```{r}
 tmap_mode("view")
