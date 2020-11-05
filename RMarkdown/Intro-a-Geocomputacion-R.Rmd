@@ -58,18 +58,30 @@ world %>%
 ```
 
 ```{r}
-world %>% 
+world_LE65 <- world %>% 
   filter(lifeExp > 65) %>% 
   select(name_long, lifeExp) %>% 
   arrange(desc(lifeExp)) 
+
+world_LE65
 ```
 
+## Mapa estatico
+
 ```{r}
-world %>% 
-  filter(lifeExp > 65) %>% 
-  select(name_long, lifeExp) %>% 
-  arrange(desc(lifeExp)) %>% 
-  tm_shape() +
-  tm_fill("lifeExp") +
-  tm_borders()
+tm_shape(world_LE65) +
+  tm_borders() +
+  tm_fill("lifeExp", breaks = c(65, 75, 85))
+```
+
+## Mapa interactivo
+
+```{r}
+tmap_mode("view")
+
+map_world_LE65 <- tm_shape(world_LE65) +
+  tm_borders() +
+  tm_fill("lifeExp", breaks = c(65, 75, 85), alpha = .5)
+
+map_world_LE65
 ```
