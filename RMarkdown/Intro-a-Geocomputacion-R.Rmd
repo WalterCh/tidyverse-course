@@ -51,12 +51,16 @@ plot(world)
 
 # EDA
 
+## Continent
+
 ```{r}
 # basic plot with filter
 world %>% 
   filter(continent == "South America") %>% 
   plot()
 ```
+
+## Esperanza de Vida
 
 ```{r}
 world_LE65 <- world %>% 
@@ -67,17 +71,7 @@ world_LE65 <- world %>%
 world_LE65
 ```
 
-```{r}
-world %>% 
-  st_drop_geometry() %>% 
-  get_summary_stats(gdpPercap)
-```
-
-```{r}
-
-```
-
-## Mapa estatico de esperanza de vida
+### Mapa estatico
 
 ```{r}
 tm_shape(world_LE65) +
@@ -85,7 +79,7 @@ tm_shape(world_LE65) +
   tm_fill("lifeExp", breaks = c(65, 75, 85))
 ```
 
-## Mapa interactivo de esperanza de vida
+### Mapa interactivo
 
 ```{r}
 tmap_mode("view")
@@ -95,4 +89,12 @@ map_world_LE65 <- tm_shape(world_LE65) +
   tm_fill("lifeExp", breaks = c(65, 75, 85), alpha = .5)
 
 map_world_LE65
+```
+
+## gdpPerCap
+
+```{r}
+world %>% 
+  st_drop_geometry() %>% 
+  get_summary_stats(gdpPercap)
 ```
