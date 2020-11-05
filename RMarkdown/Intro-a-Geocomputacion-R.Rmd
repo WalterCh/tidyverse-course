@@ -25,10 +25,11 @@ knitr::opts_chunk$set(
 # Paquetes
 
 ```{r}
-library(sf)
-library(raster)
-library(spData)
+library(sf) # simple features
+# library(raster)
+# library(spData)
 library(dplyr)
+library(tmap)
 ```
 
 # Datos
@@ -39,13 +40,36 @@ world
 ```
 
 ```{r}
+class(world)
+```
+
+```{r}
+# basic plot
 plot(world)
 ```
 
 # EDA
 
 ```{r}
+# basic plot with filter
 world %>% 
   filter(continent == "South America") %>% 
   plot()
+```
+
+```{r}
+world %>% 
+  filter(lifeExp > 65) %>% 
+  select(name_long, lifeExp) %>% 
+  arrange(desc(lifeExp)) 
+```
+
+```{r}
+world %>% 
+  filter(lifeExp > 65) %>% 
+  select(name_long, lifeExp) %>% 
+  arrange(desc(lifeExp)) %>% 
+  tm_shape() +
+  tm_fill("lifeExp") +
+  tm_borders()
 ```
