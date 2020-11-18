@@ -1,0 +1,44 @@
+---
+title: "Salud Mental Geocomp"
+author: "Walter Chanava"
+date: "18/11/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = T,
+  message = F,
+  error = F,
+  fig.align = 'center',
+  warning = F
+)
+```
+
+# Paquetes
+
+```{r}
+library(readr)
+library(dplyr)
+library(sf)
+library(tmap)
+```
+
+# Datos
+
+```{r}
+salud_mental <- read_csv("../Data/DAT SALUD MENTAL - ATENDIDOS.csv")
+salud_mental
+
+```
+
+```{r}
+salud_mental %>% 
+  group_by(Departamento, NroMes) %>% 
+  summarise(Atenciones = sum(Atenciones))
+```
+
+```{r}
+peru <- st_read("../Data/DEPARTAMENTOS.shp")
+peru
+```
