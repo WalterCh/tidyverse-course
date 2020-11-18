@@ -29,7 +29,6 @@ library(tmap)
 ```{r}
 salud_mental <- read_csv("../Data/DAT SALUD MENTAL - ATENDIDOS.csv")
 salud_mental
-
 ```
 
 ```{r}
@@ -39,6 +38,6 @@ salud_mental %>%
 ```
 
 ```{r}
-peru <- st_read("../Data/DEPARTAMENTOS.shp")
+peru <- st_read("../Data/DEPARTAMENTOS.dbf")
 peru
 ```
