@@ -89,3 +89,18 @@ salud_mental_geom %>%
   tm_facets(by = "Sexo") +
   tm_fill("Atenciones") 
 ```
+
+### Dianostico
+
+```{r}
+tmap_mode("plot")
+salud_mental_geom %>% 
+  group_by(DEPARTAMEN, Diagnostico) %>% 
+  summarise(Atenciones = sum(Atenciones)) %>% 
+  left_join(peru %>% select(DEPARTAMEN, geometry), by = "DEPARTAMEN") %>% 
+  st_as_sf() %>% 
+  tm_shape() +
+  tm_borders() + 
+  tm_facets(by = "Diagnostico") +
+  tm_fill("Atenciones")
+```
