@@ -27,17 +27,65 @@ library(tmap)
 # Datos
 
 ```{r}
-salud_mental <- read_csv("../Data/DAT SALUD MENTAL - ATENDIDOS.csv")
+salud_mental <- read_csv("../Data/salud_mental.csv",
+                         locale = locale(encoding = "ISO-8859-1"),
+                         col_names = TRUE,
+                         col_types = NULL)
 salud_mental
 ```
 
+## Lectura de shapefile
+
 ```{r}
-salud_mental %>% 
-  group_by(Departamento, NroMes) %>% 
-  summarise(Atenciones = sum(Atenciones))
+# shapefile
+peru <- st_read("../Data/DEPARTAMENTOS.shp")
+peru
+```
+
+## Union de shapefile con tabla de salud mental
+
+```{r}
+# join
+salud_mental_geom <- salud_mental %>% 
+  rename("DEPARTAMEN" = "Departamento") %>% 
+  left_join(peru, by = "DEPARTAMEN")
+salud_mental_geom
+```
+
+# EDA
+
+### NroMes
+
+```{r}
+# Salud mental en Peru en el mes de Enero
+salud_mental_geom_ene <- salud_mental_geom %>% 
+  group_by(DEPARTAMEN, NroMes) %>% 
+  summarise(Atenciones = sum(Atenciones)) %>% 
+  filter(NroMes == 1) %>% 
+  left_join(peru %>% select(DEPARTAMEN, geometry), by = "DEPARTAMEN")
+salud_mental_geom_ene
 ```
 
 ```{r}
-peru <- st_read("../Data/DEPARTAMENTOS.dbf")
-peru
+tmap_mode("view")
+
+salud_mental_geom_ene %>% 
+  st_as_sf() %>% 
+  tm_shape() +
+  tm_borders() + 
+  tm_fill("Atenciones")
+```
+
+### Sexo
+
+```{r}
+salud_mental_geom %>% 
+  group_by(DEPARTAMEN, Sexo) %>% 
+  summarise(Atenciones = sum(Atenciones)) %>% 
+  left_join(peru %>% select(DEPARTAMEN, geometry), by = "DEPARTAMEN") %>% 
+  st_as_sf() %>% 
+  tm_shape() +
+  tm_borders() + 
+  tm_facets(by = "Sexo") +
+  tm_fill("Atenciones") 
 ```
