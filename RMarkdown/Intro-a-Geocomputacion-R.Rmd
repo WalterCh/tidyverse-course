@@ -98,3 +98,21 @@ world %>%
   st_drop_geometry() %>% 
   get_summary_stats(gdpPercap)
 ```
+
+### mapa interactivo de gdp por regiones
+
+```{r}
+tm_shape(world)+
+  tm_borders()+ 
+  tm_fill(col = "gdpPercap", legend.show = FALSE)+
+  tm_facets(by = "region_un")
+```
+
+### mapa interactivo de la poblacion
+
+```{r}
+tm_shape(world)+
+  tm_borders()+
+  tm_fill(col = "pop")+
+  tm_minimap()
+```
