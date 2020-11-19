@@ -22,6 +22,9 @@ library(readr)
 library(dplyr)
 library(sf)
 library(tmap)
+library(tidyr)
+library(ggplot2)
+library(forcats)
 ```
 
 # Datos
@@ -34,7 +37,8 @@ salud_mental <- read_csv("../Data/salud_mental.csv",
 
 salud_mental_tbl <- salud_mental %>% 
   select(-X1, -Años, -ubigeo, -Provincia, -Distrito) %>% 
-  sample_frac(0.1)  # Muestra del 10% 
+  sample_frac(0.1) %>% # Muestra del 10% 
+  mutate(Edad = paste(Etapa_A, Etapa_B, sep = "-"))
 
 salud_mental_tbl
 ```
@@ -51,9 +55,10 @@ peru
 
 ```{r}
 # join
-salud_mental_geom <- salud_mental %>% 
+salud_mental_geom <- salud_mental_tbl %>% 
   rename("DEPARTAMEN" = "Departamento") %>% 
-  left_join(peru, by = "DEPARTAMEN")
+  left_join(peru, by = "DEPARTAMEN") %>% 
+  select(-IDDPTO, -CAPITAL, -FUENTE)
 salud_mental_geom
 ```
 
@@ -108,4 +113,53 @@ salud_mental_geom %>%
   tm_borders() + 
   tm_facets(by = "Diagnostico") +
   tm_fill("Atenciones")
+```
+
+### Edad
+
+```{r}
+tmap_mode("plot")
+
+salud_mental_geom %>% 
+  group_by(DEPARTAMEN, Edad) %>% 
+  summarise(Atenciones = sum(Atenciones),
+            Atendidos = sum(Atendidos)) %>% 
+  filter(Edad %in% c("18-24", "60-79")) %>% 
+  left_join(peru %>% select(DEPARTAMEN, geometry), by = "DEPARTAMEN") %>% 
+  st_as_sf() %>% 
+  tm_shape() +
+  tm_borders() + 
+  tm_facets(by = "Edad") +
+  tm_fill("Atenciones", popup.vars = c("Atenciones", "Atendidos"))
+```
+
+### Grid de Atedidos por Sexo y 
+
+```{r}
+tmap_mode("view") 
+
+# Atendidos por sexo
+salud_mental_geom %>% 
+  group_by(DEPARTAMEN, Sexo) %>% 
+  summarise(Atendidos = sum(Atendidos)) %>% 
+  pivot_wider(names_from = Sexo, values_from = Atendidos) %>% 
+  rename(SexoF = "F", SexoM = "M") %>% 
+  mutate(Total = sum(SexoF + SexoM),
+         SexoM = as.integer(SexoM)) %>% 
+  full_join(peru %>% select(DEPARTAMEN, geometry), by = "DEPARTAMEN") %>% 
+  st_as_sf() %>% 
+  tm_shape() +
+  tm_borders() + 
+  tm_fill("Total", popup.vars = c("SexoF", "SexoM", "Total"))
+```
+
+```{r}
+salud_mental_geom %>% 
+  group_by(DEPARTAMEN, Sexo) %>% 
+  summarise(Atendidos = sum(Atendidos)) %>% 
+  ggplot(aes(x = fct_reorder(DEPARTAMEN, Atendidos), y = Atendidos, 
+             fill = Sexo)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = "Departamentos")
 ```
