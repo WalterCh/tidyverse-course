@@ -31,7 +31,12 @@ salud_mental <- read_csv("../Data/salud_mental.csv",
                          locale = locale(encoding = "ISO-8859-1"),
                          col_names = TRUE,
                          col_types = NULL)
-salud_mental
+
+salud_mental_tbl <- salud_mental %>% 
+  select(-X1, -Años, -ubigeo, -Provincia, -Distrito) %>% 
+  sample_frac(0.1)  # Muestra del 10% 
+
+salud_mental_tbl
 ```
 
 ## Lectura de shapefile
