@@ -133,7 +133,7 @@ salud_mental_geom %>%
   tm_fill("Atenciones", popup.vars = c("Atenciones", "Atendidos"))
 ```
 
-### Grid de Atedidos por Sexo y 
+### Grid de Atedidos por Sexo y
 
 ```{r}
 tmap_mode("view") 

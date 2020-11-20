@@ -25,6 +25,10 @@ knitr::opts_chunk$set(
 ```{r}
 library(readr)
 library(dplyr)
+library(ggplot2)
+library(forcats)
+library(sf)
+library(tmap)
 ```
 
 # Datos
@@ -35,7 +39,81 @@ library(dplyr)
 #   filter(DEPARTAMENTO.DOMICILIO == "PIURA") %>%
 #   sample_n(2000)
 
+muertes_piura <- read_csv("../Data/fallecidos-piura.csv")
+muertes_piura 
+```
 
+```{r}
+peru = st_read("../Data/DISTRITOS.shp") 
 
-muertes_piura
+piura <-  peru %>% 
+  filter(DEPARTAMEN == "PIURA")
+
+piura
+```
+
+```{r}
+muertes_piura_geom <- muertes_piura %>% 
+  rename("DISTRITO" = "DISTRITO.DOMICILIO") %>% 
+  left_join(piura, by = "DISTRITO")
+muertes_piura_geom
+```
+
+# EDA
+
+### Muertes por tipo de seguro
+
+```{r}
+muertes_piura %>% 
+  count(TIPO.SEGURO) %>% 
+  arrange(desc(n))
+  
+  
+```
+
+```{r}
+muertes_piura %>% 
+  count(TIPO.SEGURO) %>% 
+  arrange(desc(n)) %>% 
+  ggplot(aes(x =fct_reorder(TIPO.SEGURO, n), y = n,  fill = TIPO.SEGURO))+
+  geom_col()+
+  coord_flip()
+
+```
+
+### Muertes por distritos
+
+```{r}
+tmap_mode("view")
+
+muertes_piura_geom %>% 
+  count(DISTRITO) %>%
+  left_join(piura, by ="DISTRITO") %>% 
+  st_as_sf() %>% 
+  tm_shape()+
+  tm_borders() + 
+  tm_fill("n")
+```
+
+### Muertes por sexo
+
+```{r}
+tmap_mode("view")
+
+muertes_piura_geom %>% 
+  group_by(DISTRITO, SEXO) %>%
+  summarise(muertes = n()) %>% 
+  pivot_wider(names_from = SEXO, values_from = muertes) %>% 
+  mutate(Total = FEMENINO + MASCULINO,
+         FEM_PROP = round(FEMENINO/Total*100,2),
+         MAS_PROP =  round(MASCULINO/Total*100,2),
+         PROP = round(Total/2000*100,2)) %>%
+  left_join(piura, by = "DISTRITO") %>% 
+  st_as_sf() %>% 
+  tm_shape()+
+  tm_borders() +
+  tm_fill("PROP", popup.vars = c("FEM_PROP", "MAS_PROP", "PROP"))
+  
+  
+
 ```
